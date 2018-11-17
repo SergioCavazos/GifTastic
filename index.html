@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>GifTastic</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      <link rel="stylesheet" type="text/css" media="screen" href="main.css"/>
+    -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="assets/css/reset.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="screen"
+      href="assets/css/style.css"
+    />
+    <!-- <script src="assets/javascript/jscode.js"></script> -->
+   
+  </head>
+  <body>
+    <div class="container">
+      <header><h1>Welcome 2 GifTastic</h1></header>
+    </div>
+    <div class="container"> <br>
+        <!-- Aqui van los botones iniciales y los que se van creando-->
+        <div class="row">
+            <div class="col-sm" id="gifBtns">
+              
+            </div> <br><br>
+        </div>
+        
+        <div class="row">
+        <!-- Aqui va el resultado de la búsqueda-->
+            <div class="col-sm-8" id="gifResults">
+                
+            </div>
+
+        <!-- Aqui va el botón de búsqueda-->
+            <div class="col-sm-4">
+                <div class="input-group mb-3">
+                        <input id="gifRequest" type="text" class="form-control" placeholder="Write your idea" aria-label="Write your idea" aria-describedby="basic-addon2">
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary" type="button" id="button-addon2">Submit</button>
+                        </div>
+                </div>
+            </div>
+        </div>    
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    // Declaro mis variables
+
+    var gifArray    = ["Cat", "Dog", "Donkey", "Bird", "Falcon", "Fish", "Bear", "Snake"];
+    var request     = "";
+    var queryURL    = "";
+    var key         = "dKxngNXd6FDAeKJJAEv7xB0Pi5R6FvHa";
+    var gifselected = "";
+    var rating      = "";
+    
+
+// Imprimo mis botones de arranque
+    btnCreation();
+
+// Escucho a ver que boton le dan click
+
+$(document).on("click", ".gifBtn", displayGifInfo);
+    
+
+// Declaro mis funciones
+
+    // Despliego la información en el div correspondiente , limpiando lo anteror y colocando lo nuevo
+
+    function displayGifInfo() {
+        var gifselected = $(this).attr("gifName");
+        var queryURL = "https://api.giphy.com/v1/gifs/search?api_key=" + key + "&q=" + gifselected + "&limit=10&offset=0&rating=G&lang=en"   
+        $("#gifResults").empty();
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).then(function(response) {
+            
+            for (a = 0; a < response.data.length; a++) {
+                // Clasificación
+                var rating = response.data[a].rating;
+                var pRating = $("<p>").text("Rating: " + rating);
+                // Imagen
+                var gifImageStill = response.data[a].images.fixed_height_still.url;
+                var pgifImageStill = $("<img src=" + gifImageStill + ">");
+                    pgifImageStill.addClass("gifImage");
+                    
+                // Gif
+                var gifImageMoving = response.data[a].images.fixed_height.url;
+                
+                pgifImageStill.data("still", gifImageStill);
+                pgifImageStill.data("moving", gifImageMoving);
+
+                // flag
+
+                pgifImageStill.data("status", "off");
+                
+                $("#gifResults").append(pRating).append(pgifImageStill);
+            };
+        });      
+    };
+    
+    // Crear los botones en base al arreglo
+    function btnCreation() {
+       //Borro lo que hay en el container
+       $("#gifBtns").empty();
+       //Creo los botones
+        for (i=0; i<gifArray.length; i++) {
+            var gifBtn = $("<button type='button' class='btn btn-primary'>").text(gifArray[i]);
+                gifBtn.addClass("gifBtn");
+                gifBtn.attr("gifName", gifArray[i]);
+            $("#gifBtns").append(gifBtn);
+            console.log(gifArray[i]);    
+        };
+    };  
+
+    // Tomar lo que se escribe en el INPUT y crear un boton
+    $("#button-addon2").on("click", function () {
+        var request = $("#gifRequest").val().trim();
+        gifArray.push(request);
+        $("#gifRequest").val("").attr("placeholder", "Write another idea");
+        btnCreation();
+    });
+
+
+$(document).on("click", ".gifImage", function () {
+    
+    if ( $(this).data("status") == "off" ) {   
+
+    var x = $(this).data("moving");
+    $(this).attr("src", x);
+    $(this).data("status", "on");
+    } else {
+    var x = $(this).data("still");
+    $(this).attr("src", x);
+    $(this).data("status", "off");
+    };
+
+    });
+
+
+     
+      
+    </script>
+  </body>
+</html>
