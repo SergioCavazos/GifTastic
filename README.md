@@ -1,2 +1,3 @@
 # GifTastic
-HW6
+## URL:
+https://sergiocavazos.github.io/GifTastic/
